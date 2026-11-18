@@ -172,7 +172,12 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 				Pixels[k].r = row_pointers[i][4*j];
 				Pixels[k].g = row_pointers[i][4*j+1];
 				Pixels[k].b = row_pointers[i][4*j+2];
-				Pixels[k++].a = 128-((int) row_pointers[i][4*j+3] * 128 / 255);
+				// This crap inverted the alpha channel and caused bugs when we
+				// used a standard blending equation.
+				// The new code now maps the alpha channel to the range 0-128, where
+				// - PNG alpha 0 -> GS alpha 0 (transparent)
+				// - PNG alpha 255 -> GS alpha 128 (opaque)
+				Pixels[k++].a = (row_pointers[i][4*j+3] + 1) >> 1;
 			}
 		}
 
